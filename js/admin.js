@@ -233,6 +233,99 @@ function updateNavigationState() {
     });
 }
 
+function showSuccessPopup(message, callback) {
+    // Remove existing popup if any
+    const existingPopup = document.getElementById('success-popup');
+    if (existingPopup) existingPopup.remove();
+
+    const popupHTML = `
+        <div id="success-popup" style="
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+            backdrop-filter: blur(4px);
+        ">
+            <div style="
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: scale(0.9);
+                animation: scaleIn 0.3s ease-out forwards;
+            ">
+                <div style="
+                    width: 60px; height: 60px;
+                    background: #dcfce7;
+                    color: #16a34a;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 20px;
+                    font-size: 30px;
+                ">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h2 style="color: #1f2937; margin-bottom: 10px; font-size: 1.5rem; font-weight: 600;">Success!</h2>
+                <p style="color: #6b7280; margin-bottom: 20px; font-size: 1rem; line-height: 1.5;">
+                    ${message}
+                </p>
+                <div style="font-size: 0.85rem; color: #9ca3af;">
+                    <span id="success-countdown">Refreshing in: 1.00s</span>
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes scaleIn {
+                to { transform: scale(1); }
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        </style>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+    const popup = document.getElementById('success-popup');
+    const countdownEl = document.getElementById('success-countdown');
+
+    let timeLeft = 1.0;
+    const countdownInterval = setInterval(() => {
+        timeLeft -= 0.01;
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            closePopup();
+        } else {
+            countdownEl.textContent = `Refreshing in: ${timeLeft.toFixed(2)}s`;
+        }
+    }, 10);
+
+    const closePopup = () => {
+        clearInterval(countdownInterval);
+
+        // Animate out
+        if (popup) {
+            popup.style.opacity = '0';
+            popup.style.transition = 'opacity 0.3s ease';
+        }
+
+        setTimeout(() => {
+            if (popup) popup.remove();
+            if (callback) callback();
+        }, 300);
+    };
+}
+
 function handleUserAdmin() {
     if (checkAdminStatus()) {
         handleGoBack();
@@ -244,8 +337,10 @@ function handleUserAdmin() {
 
     if (code === "admin" || code === "admin") {
         sessionStorage.setItem('isAdmin', 'true');
-        alert("Access Granted! Welcome, Admin.");
-        updateAdminUI(true);
+        showSuccessPopup("Access Granted! Welcome, Admin.", () => {
+            updateAdminUI(true);
+            location.reload();
+        });
     } else {
         alert("Access Denied: Incorrect Code.");
     }
@@ -253,7 +348,10 @@ function handleUserAdmin() {
 
 function handleGoBack() {
     sessionStorage.removeItem('isAdmin');
-    updateAdminUI(false);
+    showSuccessPopup("Exiting Admin Mode...", () => {
+        updateAdminUI(false);
+        location.reload();
+    });
 }
 
 function checkAdminStatus() {
@@ -303,25 +401,71 @@ function injectSidebarStyles() {
     style.textContent = `
         .brand-with-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
         .brand-text { flex: 1; min-width: 0; }
-        .sidebar-toggle, .sidebar-open-btn { background: rgba(255,255,255,0.1); border: none; color: #9ca3af; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .sidebar-toggle:hover, .sidebar-open-btn:hover { background: rgba(255,255,255,0.2); color: white; }
-        .sidebar-open-btn { position: fixed; left: 12px; top: 12px; z-index: 1001; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .sidebar-open-btn.show { display: flex; }
-        @media (max-width: 768px) {
-            .sidebar-open-btn.sidebar-open { display: none !important; }
+        
+        /* Liquid Glass Design for Collapse Button */
+        .sidebar-toggle { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7); 
+            width: 36px; height: 36px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s ease; 
         }
-        .sidebar { transition: width 0.25s ease, min-width 0.25s ease, transform 0.25s ease; }
-        .sidebar.sidebar--collapsed { width: 0 !important; min-width: 0 !important; padding: 0 !important; overflow: hidden !important; }
+        .sidebar-toggle:hover { 
+            background: rgba(255, 255, 255, 0.15); 
+            color: white; 
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(-2px);
+        }
+        
+        /* Liquid Glass Design for Open Button */
+        .sidebar-open-btn { 
+            background: rgba(37, 99, 235, 0.25); /* Blue base */
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #2563eb; /* Blue icon */
+            width: 44px; height: 44px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed; left: 20px; top: 20px; 
+            z-index: 1001; 
+            display: none; 
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15); /* Blue shadow */
+        }
+        .sidebar-open-btn:hover { 
+            background: rgba(37, 99, 235, 0.4); 
+            transform: translateY(2px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .sidebar-open-btn.show { display: flex; animation: floatIn 0.4s ease-out; }
+        
+        @keyframes floatIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media(max-width: 768px) {
+            .sidebar-open-btn.sidebar-open { display: none!important; }
+            .sidebar-open-btn { top: 12px; left: 12px; width: 36px; height: 36px; background: rgba(255, 255, 255, 0.8); color: #333; backdrop-filter: none; }
+    }
+        .sidebar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar.sidebar--collapsed { width: 0!important; min-width: 0!important; padding: 0!important; overflow: hidden!important; }
         .sidebar.sidebar--collapsed .brand-with-actions, .sidebar.sidebar--collapsed .menu-item, .sidebar.sidebar--collapsed .menu-category { opacity: 0; pointer-events: none; }
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 1000; box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
-            .sidebar.sidebar--collapsed { transform: translateX(-100%); width: 260px !important; min-width: 260px !important; }
+    @media(max-width: 768px) {
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 1000; box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15); }
+            .sidebar.sidebar--collapsed { transform: translateX(-100%); width: 260px!important; min-width: 260px!important; }
             .sidebar.sidebar--collapsed .brand-with-actions, .sidebar.sidebar--collapsed .menu-item, .sidebar.sidebar--collapsed .menu-category { opacity: 1; pointer-events: auto; }
-            .sidebar-open-btn { display: flex; }
+            .sidebar-open-btn { display: flex; color: #1f2937; background: white; border: 1px solid #e5e7eb; }
             .sidebar-open-btn.show { display: flex; }
-            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
+            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 999; }
             .sidebar-overlay.show { display: block; }
-        }
+    }
     `;
     document.head.appendChild(style);
 }
@@ -349,7 +493,8 @@ function initSidebar() {
         toggle.type = 'button';
         toggle.className = 'sidebar-toggle';
         toggle.setAttribute('aria-label', 'Close menu');
-        toggle.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+        toggle.innerHTML = '<i class="fa-solid fa-angles-left"></i>'; // Changed to double arrow left
+        toggle.title = 'Collapse Sidebar';
         toggle.onclick = () => {
             sidebar.classList.add('sidebar--collapsed');
             const openBtn = document.getElementById('sidebar-open-btn');
@@ -373,7 +518,8 @@ function initSidebar() {
         openBtn.id = 'sidebar-open-btn';
         openBtn.className = 'sidebar-open-btn';
         openBtn.setAttribute('aria-label', 'Open menu');
-        openBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        openBtn.innerHTML = '<i class="fa-solid fa-angles-right"></i>'; // Changed to double arrow as requested
+        openBtn.title = 'Show Sidebar';
         openBtn.onclick = () => {
             sidebar.classList.remove('sidebar--collapsed');
             openBtn.classList.remove('show');
@@ -404,10 +550,47 @@ function initSidebar() {
     }
 }
 
+// Function to update the header profile picture
+function updateHeaderProfile() {
+    // Wait for DB to be available if needed, though usually loaded by now
+    if (typeof window.StudentDB === 'undefined') return;
+
+    const student = window.StudentDB.getActive();
+    const avatarContainer = document.querySelector('.user-profile .user-avatar');
+
+    if (avatarContainer && student) {
+        // Create image element
+        const img = document.createElement('img');
+        if (student.photoUrl) {
+            img.src = student.photoUrl;
+        } else {
+            // Fallback
+            const name = student.fullName || 'User';
+            img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563eb&color=fff`;
+        }
+
+        img.alt = "Profile";
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+
+        // Clear existing icon and append image
+        avatarContainer.innerHTML = '';
+        avatarContainer.appendChild(img);
+
+        // Ensure container styles support image
+        avatarContainer.style.overflow = 'hidden';
+        avatarContainer.style.padding = '0'; // Remove padding if any
+        avatarContainer.style.border = '2px solid white';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const isAdmin = checkAdminStatus();
     updateAdminUI(isAdmin);
-    initSidebar();
+    initSidebar(); // Re-enabled dynamic sidebar
+
+    // Try to update header profile
+    // We add a small delay to ensure DB init if it happens in parallel scripts
+    setTimeout(updateHeaderProfile, 100);
 
     checkPageAccess();
     updateNavigationState();
