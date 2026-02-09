@@ -365,17 +365,16 @@
             <i class="fa-solid fa-user-plus"></i> Student Profile<br>Registration
         </a>
         <a href="Student Profile Info Update.html" class="menu-item">
-            <i class="fa-solid fa-user-pen"></i> Update Personal<br>Information
+            <i class="fa-solid fa-edit"></i> Update Personal<br>Information
         </a>
         <a href="Academic Records.html" class="menu-item">
-            <i class="fa-solid fa-address-card"></i> Academic Records Viewer
+            <i class="fa-solid fa-file-alt"></i> Academic Records
         </a>
         <a href="Student Profile ID.html" class="menu-item">
-            <i class="fa-solid fa-graduation-cap"></i> Students ID Generation
+            <i class="fa-solid fa-id-card"></i> Student ID Generation
         </a>
-
-        <a href="Student Status Tracking.html" class="menu-item">
-            <i class="fa-solid fa-id-card"></i> Student Status Tracking
+        <a href="Student Status Tracking.html" class="menu-item active">
+            <i class="fa-solid fa-chart-line"></i> Student Status Tracking
         </a>
 
         <div id="adminTools">
@@ -632,44 +631,10 @@
             if (updated) {
                 currentStudent.status = status;
 
-                // Update UI
-                const statusElement = document.querySelector('.profile-info .profile-text:last-child strong');
-                if (statusElement) {
-                    statusElement.textContent = status;
-                    statusElement.style.color = statusColors[status];
-                }
-
-                // Highlight the selected status
-                highlightCurrentStatus();
-
-                // Visual feedback
-                const clickedOption = Array.from(document.querySelectorAll('.status-option')).find(
-                    opt => opt.querySelector('.status-label').textContent === status
-                );
-
-                if (clickedOption) {
-                    const originalBg = clickedOption.style.backgroundColor;
-                    clickedOption.style.backgroundColor = '#10b981';
-                    clickedOption.style.color = 'white';
-
-                    const label = clickedOption.querySelector('.status-label');
-                    const icon = clickedOption.querySelector('.status-icon');
-                    label.style.color = 'white';
-                    icon.style.color = 'white';
-
-                    setTimeout(() => {
-                        clickedOption.style.backgroundColor = originalBg;
-                        clickedOption.style.color = '';
-                        label.style.color = '';
-                        icon.style.color = '';
-                        highlightCurrentStatus();
-                    }, 600);
-                }
-
-                // Success notification
-                setTimeout(() => {
-                    alert(`Status successfully updated to: ${status}\nStudent: ${currentStudent.fullName}\nID: ${currentStudent.id}`);
-                }, 650);
+                // Show success popup and reload
+                showSuccessPopup(`Status updated to: ${status}`, () => {
+                    location.reload();
+                });
             } else {
                 alert('Failed to update status. Please try again.');
             }
@@ -687,6 +652,5 @@
         });
     </script>
 </body>
-
 
 </html>

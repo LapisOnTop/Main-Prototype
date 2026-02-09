@@ -444,10 +444,12 @@
             cursor: pointer;
             background: #e7e7e7;
             border: none;
-            padding: 0.8rem 1.5rem;
+            padding: 0.5rem 1rem;
+            /* Reduced from 0.8rem 1.5rem */
             margin: 0;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            /* Reduced from 0.9rem */
             position: relative;
             display: inline-block;
         }
@@ -503,18 +505,17 @@
         <a href="Student Profile Reg.html" class="menu-item">
             <i class="fa-solid fa-user-plus"></i> Student Profile<br>Registration
         </a>
-        <a href="Student Profile Info Update.html" class="menu-item">
-            <i class="fa-solid fa-user-pen"></i> Update Personal<br>Information
+        <a href="Student Profile Info Update.html" class="menu-item active">
+            <i class="fa-solid fa-edit"></i> Update Personal<br>Information
         </a>
         <a href="Academic Records.html" class="menu-item">
-            <i class="fa-solid fa-address-card"></i> Academic Records Viewer
+            <i class="fa-solid fa-file-alt"></i> Academic Records
         </a>
         <a href="Student Profile ID.html" class="menu-item">
-            <i class="fa-solid fa-graduation-cap"></i> Students ID Generation
+            <i class="fa-solid fa-id-card"></i> Student ID Generation
         </a>
-
         <a href="Student Status Tracking.html" class="menu-item">
-            <i class="fa-solid fa-id-card"></i> Student Status Tracking
+            <i class="fa-solid fa-chart-line"></i> Student Status Tracking
         </a>
 
         <div id="adminTools">
@@ -669,6 +670,30 @@
                 return;
             }
 
+            // Check for embed mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('embed') === 'true') {
+                const sidebar = document.querySelector('.sidebar');
+                const breadcrumbs = document.querySelector('.breadcrumbs');
+                const mainContent = document.querySelector('body > form') || document.querySelector('body'); // Adjust selector based on structure
+
+                if (sidebar) sidebar.style.display = 'none';
+                if (breadcrumbs) breadcrumbs.style.display = 'none';
+
+                // Adjust body style for embed
+                document.body.style.display = 'block'; // Override flex
+                document.body.style.backgroundColor = 'white';
+                document.body.style.padding = '20px';
+
+                // If there's a specific container for form, adjust it
+                const formContainer = document.querySelector('.main-content'); // Assuming class name
+                if (formContainer) {
+                    formContainer.style.marginLeft = '0';
+                    formContainer.style.width = '100%';
+                    formContainer.style.padding = '0';
+                }
+            }
+
             // 2. Populate Form
             document.getElementById('studentNameDisplay').textContent = currentStudent.fullName;
             document.getElementById('studentId').value = currentStudent.id;
@@ -691,6 +716,51 @@
                 previewImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentStudent.fullName);
             }
 
+            // Track initial data for comparison
+            const initialData = {
+                fullName: currentStudent.fullName,
+                birthdate: currentStudent.birthdate,
+                contactNumber: currentStudent.contactNumber,
+                email: currentStudent.email,
+                address: currentStudent.address,
+                program: currentStudent.program,
+                yearLevel: currentStudent.yearLevel,
+                admissionDate: currentStudent.admissionDate,
+                photoUrl: currentStudent.photoUrl
+            };
+
+            const saveBtn = document.querySelector('.btn-primary');
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+            saveBtn.style.cursor = 'not-allowed';
+
+            // Function to check for changes
+            function checkChanges() {
+                const currentData = {
+                    fullName: document.getElementById('fullName').value,
+                    birthdate: document.getElementById('birthdate').value,
+                    contactNumber: document.getElementById('contactNumber').value,
+                    email: document.getElementById('email').value,
+                    address: document.getElementById('address').value,
+                    program: document.getElementById('program').value,
+                    yearLevel: document.getElementById('yearLevel').value,
+                    admissionDate: document.getElementById('admissionDate').value,
+                    photoUrl: base64Photo
+                };
+
+                const hasChanges = JSON.stringify(initialData) !== JSON.stringify(currentData);
+                saveBtn.disabled = !hasChanges;
+                saveBtn.style.opacity = hasChanges ? '1' : '0.5';
+                saveBtn.style.cursor = hasChanges ? 'pointer' : 'not-allowed';
+            }
+
+            // Add listeners to all inputs
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', checkChanges);
+                input.addEventListener('change', checkChanges);
+            });
+
             // Photo Preview Logic
             const photoInput = document.getElementById('photoInput');
             let base64Photo = currentStudent.photoUrl;
@@ -702,6 +772,7 @@
                     reader.onload = function (event) {
                         base64Photo = event.target.result;
                         previewImg.src = base64Photo;
+                        checkChanges(); // Check changes after photo update
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -711,6 +782,7 @@
                     } else {
                         previewImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentStudent.fullName);
                     }
+                    checkChanges();
                 }
             });
 
@@ -734,21 +806,13 @@
                 window.StudentDB.update(currentStudent.id, updatedData);
                 window.StudentDB.setActive(currentStudent.id); // Ensure it stays active after update
 
-                // Visual feedback
-                const btn = e.target.querySelector('button[type="submit"]');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
-                btn.style.backgroundColor = '#10b981'; // Green
-
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.backgroundColor = ''; // Reset
-                    document.getElementById('studentNameDisplay').textContent = updatedData.fullName;
-                }, 2000);
+                // Visual feedback using generalized popup
+                showSuccessPopup("Student information updated successfully!", () => {
+                    location.reload();
+                });
             });
         });
     </script>
 </body>
-
 
 </html>

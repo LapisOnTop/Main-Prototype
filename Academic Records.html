@@ -517,22 +517,21 @@
                     style="font-size: 0.8rem; opacity: 0.7; font-weight: 400; display: none;">Admin Panel</span>
             </div>
 
-        <a href="Student Profile Reg.html" class="menu-item">
-            <i class="fa-solid fa-user-plus"></i> Student Profile<br>Registration
-        </a>
-        <a href="Student Profile Info Update.html" class="menu-item">
-            <i class="fa-solid fa-user-pen"></i> Update Personal<br>Information
-        </a>
-        <a href="Academic Records.html" class="menu-item">
-            <i class="fa-solid fa-address-card"></i> Academic Records Viewer
-        </a>
-        <a href="Student Profile ID.html" class="menu-item">
-            <i class="fa-solid fa-graduation-cap"></i> Students ID Generation
-        </a>
-
-        <a href="Student Status Tracking.html" class="menu-item">
-            <i class="fa-solid fa-id-card"></i> Student Status Tracking
-        </a>
+            <a href="Student Profile Reg.html" class="menu-item">
+                <i class="fa-solid fa-user-plus"></i> Student Profile<br>Registration
+            </a>
+            <a href="Student Profile Info Update.html" class="menu-item">
+                <i class="fa-solid fa-edit"></i> Update Personal<br>Information
+            </a>
+            <a href="Academic Records.html" class="menu-item active">
+                <i class="fa-solid fa-file-alt"></i> Academic Records
+            </a>
+            <a href="Student Profile ID.html" class="menu-item">
+                <i class="fa-solid fa-id-card"></i> Student ID Generation
+            </a>
+            <a href="Student Status Tracking.html" class="menu-item">
+                <i class="fa-solid fa-chart-line"></i> Student Status Tracking
+            </a>
 
             <div id="adminTools">
                 <div class="menu-category">Tools</div>
@@ -640,7 +639,7 @@
                     <div class="icon-box icon-gold"><i class="fa-regular fa-star"></i></div>
                     <div class="summary-text">
                         <p>Overall GPA</p>
-                        <h3 id="overall-gpa">1.45</h3>
+                        <h3 id="overall-gpa">0.00</h3>
                     </div>
                     <div class="status-tag" id="honors-badge"
                         style="margin-left: 15px; background-color: #ecfdf5; color: #10b981;">
@@ -682,106 +681,7 @@
             return isNaN(n) ? 0 : n;
         }
 
-        function showSuccessPopup() {
-            // Create popup if it doesn't exist
-            if (!document.getElementById('success-popup')) {
-                const popupHTML = `
-                    <div id="success-popup" style="
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: white;
-                        border-radius: 12px;
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-                        padding: 30px;
-                        z-index: 10000;
-                        min-width: 350px;
-                        text-align: center;
-                        border: 2px solid #10b981;
-                        display: none;
-                    ">
-                        <div style="
-                            width: 60px;
-                            height: 60px;
-                            background: #ecfdf5;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            margin: 0 auto 20px;
-                            border: 2px solid #10b981;
-                        ">
-                            <i class="fa-solid fa-check" style="font-size: 24px; color: #10b981;"></i>
-                        </div>
-                        <h3 style="
-                            margin: 0 0 10px;
-                            color: #1f2937;
-                            font-size: 1.2rem;
-                            font-weight: 600;
-                        ">Success!</h3>
-                        <p style="
-                            margin: 0 0 20px;
-                            color: #6b7280;
-                            line-height: 1.5;
-                        ">Grades saved successfully!</p>
-                        <button onclick="hideSuccessPopup()" style="
-                            background: #10b981;
-                            color: white;
-                            border: none;
-                            border-radius: 6px;
-                            padding: 10px 20px;
-                            font-weight: 500;
-                            cursor: pointer;
-                            transition: background 0.2s;
-                        " onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-                            OK
-                        </button>
-                    </div>
-                    <div id="success-overlay" style="
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(0, 0, 0, 0.5);
-                        z-index: 9999;
-                        display: none;
-                    " onclick="hideSuccessPopup()"></div>
-                `;
-                document.body.insertAdjacentHTML('beforeend', popupHTML);
-            }
 
-            // Show popup with animation
-            const popup = document.getElementById('success-popup');
-            const overlay = document.getElementById('success-overlay');
-            popup.style.display = 'block';
-            overlay.style.display = 'block';
-            popup.classList.add('popup-enter');
-            overlay.classList.add('overlay-enter');
-
-            // Remove animation classes after animation completes
-            setTimeout(() => {
-                popup.classList.remove('popup-enter');
-                overlay.classList.remove('overlay-enter');
-            }, 300);
-        }
-
-        function hideSuccessPopup() {
-            const popup = document.getElementById('success-popup');
-            const overlay = document.getElementById('success-overlay');
-            if (popup && overlay) {
-                popup.classList.add('popup-exit');
-                overlay.classList.add('overlay-exit');
-
-                setTimeout(() => {
-                    popup.style.display = 'none';
-                    overlay.style.display = 'none';
-                    popup.classList.remove('popup-exit');
-                    overlay.classList.remove('overlay-exit');
-                }, 200);
-            }
-        }
 
         function showAdminPasswordPopup() {
             // Create popup if it doesn't exist
@@ -1175,7 +1075,7 @@
             });
 
             const overallGPAVal = grandTotalUnits > 0 ? (grandWeightedSum / grandTotalUnits) : 0;
-            document.getElementById('overall-gpa').innerText = overallGPAVal.toFixed(2);
+            document.getElementById('overall-gpa').innerText = overallGPAVal > 0 ? overallGPAVal.toFixed(2) : '0.00';
             document.getElementById('overall-units').innerText = grandTotalUnits;
             updateHonorsBadge(grandTotalUnits, overallGPAVal);
         }
@@ -1288,10 +1188,9 @@
 
             window.StudentDB.update(activeStudent.id, { academicRecords: activeStudent.academicRecords });
             activeStudent = window.StudentDB.getById(activeStudent.id);
-            showSuccessPopup();
-            isEditMode = false;
-            saveBtn.style.display = 'none';
-            renderTable();
+            showSuccessPopup("Grades saved successfully!", () => {
+                location.reload();
+            });
         }
 
         function enableEditing() {
@@ -1336,6 +1235,22 @@
                 }
             }
 
+            // Check for embed mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('embed') === 'true') {
+                const sidebar = document.querySelector('.sidebar');
+                const breadcrumbs = document.querySelector('.breadcrumbs');
+                const mainContent = document.querySelector('.main-content');
+
+                if (sidebar) sidebar.style.display = 'none';
+                if (breadcrumbs) breadcrumbs.style.display = 'none';
+                if (mainContent) {
+                    mainContent.style.padding = '20px';
+                    mainContent.style.height = '100vh';
+                    document.body.style.backgroundColor = 'white';
+                }
+            }
+
             updateStudentHeader();
 
             // Semester Select Listener
@@ -1357,7 +1272,7 @@
                 const editBtn = document.createElement('button');
                 editBtn.type = 'button';
                 editBtn.className = 'menu-item';
-                editBtn.style.cssText = 'background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px 14px; margin-right: 10px;';
+                editBtn.style.cssText = 'background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px 14px; margin-left: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.9rem; margin-right: 0;';
                 editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Grades';
                 editBtn.onclick = function () {
                     if (window.StudentDB.isEmpty()) {
@@ -1368,7 +1283,14 @@
                         alert('Select a student from the Students List first.');
                     }
                 };
-                document.querySelector('.controls').prepend(editBtn);
+
+                // Ensure helper layout
+                const controls = document.querySelector('.controls');
+                controls.style.display = 'flex';
+                controls.style.alignItems = 'center';
+                // controls.style.justifyContent = 'flex-end'; // Optional: if we want them on the right
+
+                controls.appendChild(editBtn); // Moved to right side
             }
 
             // F12 Listener
@@ -1390,6 +1312,5 @@
 
     </script>
 </body>
-
 
 </html>

@@ -565,21 +565,20 @@
                 style="font-size: 0.8rem; opacity: 0.7; font-weight: 400; display: none;">Admin Panel</span>
         </div>
 
-        <a href="Student Profile Reg.html" class="menu-item">
+        <a href="Student Profile Reg.html" class="menu-item active">
             <i class="fa-solid fa-user-plus"></i> Student Profile<br>Registration
         </a>
         <a href="Student Profile Info Update.html" class="menu-item">
-            <i class="fa-solid fa-user-pen"></i> Update Personal<br>Information
+            <i class="fa-solid fa-edit"></i> Update Personal<br>Information
         </a>
         <a href="Academic Records.html" class="menu-item">
-            <i class="fa-solid fa-address-card"></i> Academic Records Viewer
+            <i class="fa-solid fa-file-alt"></i> Academic Records
         </a>
         <a href="Student Profile ID.html" class="menu-item">
-            <i class="fa-solid fa-graduation-cap"></i> Students ID Generation
+            <i class="fa-solid fa-id-card"></i> Student ID Generation
         </a>
-
         <a href="Student Status Tracking.html" class="menu-item">
-            <i class="fa-solid fa-id-card"></i> Student Status Tracking
+            <i class="fa-solid fa-chart-line"></i> Student Status Tracking
         </a>
 
         <div id="adminTools">
@@ -924,10 +923,11 @@
                 const signatureUrl = canvas.toDataURL();
 
                 // Generate random validity date (1 year from now with random month and day)
+                // Generate random validity date (Random Month, Random Date, Year 2027)
                 function generateValidityDate() {
                     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                     const now = new Date();
-                    const nextYear = now.getFullYear() + 1;
+                    const nextYear = 2027; // Fixed to 2027 as requested
                     const randomMonthIdx = Math.floor(Math.random() * 12);
                     const randomMonth = months[randomMonthIdx];
 
@@ -1024,6 +1024,5 @@
         }
     </script>
 </body>
-
 
 </html>
